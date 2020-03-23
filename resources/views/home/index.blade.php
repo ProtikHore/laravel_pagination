@@ -135,6 +135,7 @@
     <script language="JavaScript">
 
         let currentPageUrl = '';
+        let lastPageUrl = '';
         function setPageDefaults() {
             $('#record_section').addClass('sr-only');
             $('#bulk_records').prop('checked', false);
@@ -151,8 +152,9 @@
             if(result.data.total > 0) {
                 $('#record_count_section').append('Record: ' + result.data.from + ' ~ ' + result.data.to + ' of ' + result.data.total);
                 $.each(result.data.data, function (key, record) {
+                    let sl = result.data.from + key;
                     $('#records').append($('<tr></tr>')
-                        .append('<td><input type="checkbox" class="bulk_record" value="' + record.id + '"> ' + ++key + '</td>')
+                        .append('<td><input type="checkbox" class="bulk_record" value="' + record.id + '"> ' + sl + '</td>')
                         .append('<td>' + record.name + '</td>')
                         .append('<td>' + record.email + '</td>')
                         .append('<td>' + record.mobile_number + '</td>')
@@ -177,6 +179,11 @@
                 url: url,
                 success: function (result) {
                     console.log(result);
+                    if (result.data.total % 5 == 0) {
+                        lastPageUrl = result.data.last_page_url.split('=')[0] + '=' + (parseInt(result.data.last_page_url.split('=')[1]) + 1);
+                    } else {
+                        lastPageUrl = result.data.last_page_url;
+                    }
                     showRecord(result);
                 },
                 error: function (xhr) {
@@ -190,10 +197,11 @@
             let pageLink = $(this).attr('href');
             let value = pageLink.split('=');
             console.log(value[1]);
+            currentPageUrl = '{{ url('get/user/record/null?page=') }}' + value[1];
             setPageDefaults();
             $.ajax({
                method: 'get',
-               url: '{{ url('get/user/record/null?page=') }}' + value[1],
+               url: currentPageUrl,
                cache: false,
                success: function (result) {
                    console.log(result);
@@ -224,7 +232,7 @@
         $(document).on('keyup', '#search', function () {
             let searchKey = $('#search').val() === '' ? 'null' : $('#search').val();
             currentPageUrl = '{{ url('get/image') }}/' + searchKey;
-            getImages(currentPageUrl);
+            getRecords(currentPageUrl);
             return false;
         });
 
@@ -265,8 +273,12 @@
                 success: function (result) {
                     console.log(result);
                     $('.modal_close').trigger('click');
-                    currentPageUrl = '{{ url('get/user/record') }}/null';
-                    getRecords(currentPageUrl);
+                    //currentPageUrl = '{{ url('get/user/record') }}/null';
+                    if ($('#id').val() === '') {
+                        getRecords(lastPageUrl);
+                    } else {
+                        getRecords(currentPageUrl);
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -294,17 +306,37 @@
             return false;
         });
 
-        $(document).on('click', '.remove_image', function () {
+        $('#bulk_records').click(function () {
+            $('.bulk_record').not(this).prop('checked', this.checked);
+            $('#bulk_records').not(this).prop('checked', this.checked);
+            return true;
+        });
+
+        $(document).on('click', '.edit', function () {
             let id = $(this).data('id');
-            console.log(id);
+            let data= new FormData();
+            data.append('id', id);
+            data.append('_token', '{{ csrf_token() }}');
             $.ajax({
-                method: 'get',
-                url: '{{ url('image/file/remove') }}/' + id,
+                method: 'post',
+                url: '{{ url('get/user/data') }}',
+                data: data,
+                processData: false,
+                contentType: false,
                 cache: false,
                 success: function (result) {
                     console.log(result);
-                    currentPageUrl = '{{ url('get/image') }}/null';
-                    getImages(currentPageUrl);
+                    clearForm();
+                    $('#id').val(result.id);
+                    $('#name').val(result.name);
+                    $('#email').val(result.email);
+                    $('#mobile_number').val(result.mobile_number);
+                    $('#status').val(result.status);
+                    $('#narrative').val(result.narrative);
+                    $('#form_submit').text('UPDATE');
+                    $('#modal').modal('show').on('shown.bs.modal', function () {
+                        $('#name').focus();
+                    });
                 },
                 error: function (xhr) {
                     console.log(xhr);

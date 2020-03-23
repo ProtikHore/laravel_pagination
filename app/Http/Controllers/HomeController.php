@@ -12,7 +12,7 @@ class HomeController extends Controller
         return view('home.index');
     }
 
-    public function getRecord()
+    public function getRecords()
     {
         $records = User::where('status', 'Active')->paginate(5)->onEachSide(1);
         //return view('home.pagination', compact('records'));
@@ -29,7 +29,12 @@ class HomeController extends Controller
         $request->get('narrative') === null ? $record->narrative = '---' : $record->narrative = $request->get('narrative');
         $request->get('id') === null ? $record->created_by = session('id') : $record->updated_by = session('id');
         $record->save();
+        //return redirect('get/user/record/null?page=2');
         return response()->json($record);
+    }
 
+    public function getRecord(Request $request)
+    {
+        return response()->json(User::where('id', $request->get('id'))->first());
     }
 }

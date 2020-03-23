@@ -45,6 +45,11 @@
             padding: .5rem .75rem;
         }
 
+        .btn_orange {
+            background-color: #A60A67;
+            color: white;
+        }
+
 
         #header {
             height:50px;
