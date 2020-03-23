@@ -14,3 +14,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', 'HomeController@index')->name('home.index');
+Route::get('get/user/record/{search_key}', 'HomeController@getRecord')->name('home.get.records');
+Route::post('save/user/record', 'HomeController@saveRecords')->name('home.save.records');
+//Route::get('get/user/record/null/page=', 'HomeController@getRecord');

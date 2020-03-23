@@ -8,7 +8,7 @@
         <div class="col-12 col-sm-12 col-md-11 col-lg-10 col-xl-9 mx-auto">
             <div class="row mt-3">
                 <div class="col-3">
-                    <button class="btn btn-primary" id="image_modal"> Add</button>
+                    <button class="btn btn-primary" id="add"> Add</button>
                 </div>
                 <div class="col-9">
                     <form id="search_form">
@@ -58,6 +58,12 @@
                 </div>
             </div>
 
+            <div class="row sr-only">
+                <div class="col" id="pagination">
+
+                </div>
+            </div>
+
 
             <div class="modal fade" id="modal">
                 <div class="modal-dialog modal-dialog-centered">
@@ -76,14 +82,41 @@
                                 <div class="row mt-3">
                                     <div class="col">
                                         <div class="form-group">
-                                            <label for="religion">Image Title</label>
-                                            <input name="title" type="text" class="form-control" id="title" placeholder="Image Title">
+                                            <label for="name">Name</label>
+                                            <input name="name" type="text" class="form-control" id="name" placeholder="Name">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <input name="email" type="text" class="form-control" id="email" placeholder="Email">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="mobile_number">Mobile Number</label>
+                                            <input name="mobile_number" type="text" class="form-control" id="mobile_number" placeholder="Mobile Number">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="status">Status</label>
+                                            <select class="form-control" name="status" id="status">
+                                                <option value="Active">Active</option>
+                                                <option value="Inactive">Inactive</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col text-right">
-                                        <button type="submit" class="btn btn-primary btn-sm text-center margin_left_fifteen_px" id="image_upload_form_submit"></button>
+                                        <button type="submit" class="btn btn-primary btn-sm text-center margin_left_fifteen_px" id="form_submit"></button>
                                     </div>
                                 </div>
                             </form>
@@ -102,31 +135,49 @@
     <script language="JavaScript">
 
         let currentPageUrl = '';
+        function setPageDefaults() {
+            $('#record_section').addClass('sr-only');
+            $('#bulk_records').prop('checked', false);
+            $('#bulk_status').val('');
+            $('#records').empty();
+            $('#no_record_section').addClass('sr-only');
+            $('#record_count_section').removeClass('col-sm-12 col-sm-2');
+            $('#record_count_section').empty();
+            $('#pagination').empty();
+            return true;
+        }
 
-        function getImages(url)
+        function showRecord(result) {
+            if(result.data.total > 0) {
+                $('#record_count_section').append('Record: ' + result.data.from + ' ~ ' + result.data.to + ' of ' + result.data.total);
+                $.each(result.data.data, function (key, record) {
+                    $('#records').append($('<tr></tr>')
+                        .append('<td><input type="checkbox" class="bulk_record" value="' + record.id + '"> ' + ++key + '</td>')
+                        .append('<td>' + record.name + '</td>')
+                        .append('<td>' + record.email + '</td>')
+                        .append('<td>' + record.mobile_number + '</td>')
+                        .append('<td>' + record.status + '</td>')
+                        .append('<td>' + record.narrative + '</td>')
+                        .append('<td><i class="far fa-edit edit text_orange" data-id="' + record.id + '" style="cursor: pointer; font-size: 1rem;" data-toggle="tooltip" title="Edit"></i></td>')
+                    );
+                });
+                $('#record_section').removeClass('sr-only');
+                $('#pagination').append(result.pagination);
+                $('#pagination').parent().removeClass('sr-only');
+            } else {
+                $('#no_record_section').removeClass('sr-only');
+            }
+        }
+
+        function getRecords(url)
         {
-            $('#image_no_record_section').addClass('sr-only');
-            $('#image_show').empty();
+            setPageDefaults();
             $.ajax({
                 method: 'get',
                 url: url,
                 success: function (result) {
                     console.log(result);
-                    if(result && result.length) {
-                        console.log('record');
-                        $.each(result, function (key, data) {
-                            console.log(data.image_path);
-                            $('#image_show').append($('<div class="col-2">')
-                                .append("<img class='p-3' src='storage/"+ data.image_path +"' width='130' height='130' >")
-                                .append("<h3> " + data.title + "</h3>")
-                                .append('<button type="button" class="btn btn-primary remove_image" data-id="' + data.id + '">Remove</button>')
-                                .append('</div>')
-                            );
-                        });
-                    } else {
-                        console.log(' no record');
-                        $('#image_no_record_section').removeClass('sr-only');
-                    }
+                    showRecord(result);
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -135,18 +186,38 @@
             return true;
         }
 
+        $(document).on('click', '.page-link', function () {
+            let pageLink = $(this).attr('href');
+            let value = pageLink.split('=');
+            console.log(value[1]);
+            setPageDefaults();
+            $.ajax({
+               method: 'get',
+               url: '{{ url('get/user/record/null?page=') }}' + value[1],
+               cache: false,
+               success: function (result) {
+                   console.log(result);
+                   showRecord(result);
+               },
+               error: function (xhr) {
+                   console.log(xhr);
+               }
+            });
+            return false;
+        });
+
         $(document).ready(function () {
             console.log('hello');
-            currentPageUrl = '{{ url('get/image') }}/null';
-            getImages(currentPageUrl);
+            currentPageUrl = '{{ url('get/user/record') }}/null';
+            getRecords(currentPageUrl);
 
         });
 
-        function clearFileForm() {
-            $('#image_form_message').empty();
-            $('#image_upload_form').find('.text-danger').removeClass('text-danger');
-            $('#image_upload_form').find('.is-invalid').removeClass('is-invalid');
-            $('#image_upload_form').find('span').remove();
+        function clearForm() {
+            $('#form_message').empty();
+            $('#form').find('.text-danger').removeClass('text-danger');
+            $('#form').find('.is-invalid').removeClass('is-invalid');
+            $('#form').find('span').remove();
             return true;
         }
 
@@ -157,12 +228,12 @@
             return false;
         });
 
-        $('#modal').on('click', function () {
-            $('#image_upload_form').trigger('reset');
-            clearFileForm();
-            $('#image_upload_form_submit').text('SAVE');
-            $('#image_upload_modal').modal('show').on('shown.bs.modal', function () {
-                $('#religion').focus();
+        $(document).on('click', '#add' ,function () {
+            $('#form').trigger('reset');
+            clearForm();
+            $('#form_submit').text('SAVE');
+            $('#modal').modal('show').on('shown.bs.modal', function () {
+                $('#name').focus();
             });
             return false;
         });
@@ -180,40 +251,22 @@
             }
         }
 
-        $(document).on('submit', '#image_upload_form' ,function () {
-            clearFileForm();
-            var bar = $('.image_bar');
-            var percent = $('.image_percent');
-            let fileData = new FormData(this);
-            fileData.append('_token', '{{ csrf_token() }}');
+        $(document).on('submit', '#form' ,function () {
+            clearForm();
+            let data = new FormData(this);
+            data.append('_token', '{{ csrf_token() }}');
             $.ajax({
                 method: 'post',
-                url: '{{ url('image/upload') }}',
-                data: fileData,
+                url: '{{ url('save/user/record') }}',
+                data: data,
                 processData: false,
                 contentType: false,
                 cache: false,
-                xhr: function() {
-                    var xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener("progress", function(evt) {
-                        //console.log(percentComplete);
-                        if (evt.lengthComputable) {
-                            var percentComplete = Math.round( (evt.loaded * 100) / evt.total ) + '%';
-                            //var barVal = Math.ceil(percentComplete);
-                            bar.width(percentComplete);
-                            percent.html(percentComplete);
-                        }
-                    }, false);
-                    return xhr;
-                },
                 success: function (result) {
                     console.log(result);
-                    var percentVal = '100%';
-                    bar.width(percentVal);
-                    percent.html(percentVal);
-                    currentPageUrl = '{{ url('get/image') }}/null';
-                    getImages(currentPageUrl);
-                    $('.image_upload_modal_close').trigger('click');
+                    $('.modal_close').trigger('click');
+                    currentPageUrl = '{{ url('get/user/record') }}/null';
+                    getRecords(currentPageUrl);
                 },
                 error: function (xhr) {
                     console.log(xhr);
