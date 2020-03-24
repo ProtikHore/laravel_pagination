@@ -10,10 +10,13 @@
                 <div class="col-3">
                     <button class="btn btn-primary" id="add"> Add</button>
                 </div>
-                <div class="col-9">
+                <div class="col-6">
                     <form id="search_form">
                         <input type="text" class="form-control" name="search" id="search" placeholder="Search....">
                     </form>
+                </div>
+                <div class="col-3">
+                    <button type="button" class="btn btn-primary">Search</button>
                 </div>
             </div>
             <hr>
@@ -197,7 +200,8 @@
             let pageLink = $(this).attr('href');
             let value = pageLink.split('=');
             console.log(value[1]);
-            currentPageUrl = '{{ url('get/user/record/null?page=') }}' + value[1];
+            let searchKey = $('#search').val() === '' ? 'null' : $('#search').val();
+            currentPageUrl = '{{ url('get/user/record') }}' + '/' + searchKey + '?page=' + value[1];
             setPageDefaults();
             $.ajax({
                method: 'get',
@@ -229,9 +233,9 @@
             return true;
         }
 
-        $(document).on('keyup', '#search', function () {
+        $(document).on('submit', '#search_form', function () {
             let searchKey = $('#search').val() === '' ? 'null' : $('#search').val();
-            currentPageUrl = '{{ url('get/image') }}/' + searchKey;
+            currentPageUrl = '{{ url('get/user/record') }}/' + searchKey;
             getRecords(currentPageUrl);
             return false;
         });

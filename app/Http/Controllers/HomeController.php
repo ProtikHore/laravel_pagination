@@ -12,9 +12,19 @@ class HomeController extends Controller
         return view('home.index');
     }
 
-    public function getRecords()
+    public function getRecords($searchKey)
     {
-        $records = User::paginate(5)->onEachSide(1);
+        $records =  User::where(function ($query) use ($searchKey) {
+            if ($searchKey !== 'null') {
+                $query->where('name', 'like', '%' . $searchKey . '%');
+                $query->orWhere('email', 'like', '%' . $searchKey . '%');
+                $query->orWhere('mobile_number', 'like', '%' . $searchKey . '%');
+                $query->orWhere('status', 'like', '%' . $searchKey . '%');
+                $query->orWhere('narrative', 'like', '%' . $searchKey . '%');
+            }
+        })->paginate(5)->onEachSide(1);
+
+       // $records = User::paginate(5)->onEachSide(1);
         //return view('home.pagination', compact('records'));
         return response()->json(['data'=> $records, 'pagination'=>(string) $records->links()]);
     }
