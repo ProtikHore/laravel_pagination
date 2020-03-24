@@ -312,6 +312,45 @@
             return true;
         });
 
+        $(document).on('click', '#bulk_apply', function () {
+            let data = new FormData(),
+                status = $('#bulk_status').val(),
+                ids = [];
+            $('.bulk_record:checkbox:checked').each(function () {
+                ids.push($(this).val());
+            });
+            data.append('ids', ids);
+            data.append('status', status);
+            data.append('_token', '{{ csrf_token() }}');
+            $.ajax({
+                method: 'post',
+                url: '{{ url('user/bulk/operation') }}',
+                data: data,
+                contentType: false,
+                processData: false,
+                cache: false,
+                success: function (result) {
+                    console.log(result);
+                    getRecords(currentPageUrl);
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                    let message = '';
+                    if (xhr.hasOwnProperty('responseJSON')) {
+                        if (xhr.responseJSON.hasOwnProperty('errors')) {
+                            $.each(xhr.responseJSON.errors, function (key, value) {
+                                $.each(value, function (k, v) {
+                                    message += v + '<br>';
+                                });
+                            });
+                        }
+                    }
+                    $.toaster({ title: 'Warning', priority : 'danger', message : message });
+                }
+            });
+            return false;
+        });
+
         $(document).on('click', '.edit', function () {
             let id = $(this).data('id');
             let data= new FormData();

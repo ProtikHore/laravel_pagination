@@ -17,3 +17,4 @@ Route::get('/', 'HomeController@index')->name('home.index');
 Route::get('get/user/record/{search_key}', 'HomeController@getRecords')->name('home.get.records');
 Route::post('save/user/record', 'HomeController@saveRecords')->name('home.save.records');
 Route::post('get/user/data', 'HomeController@getRecord');
+Route::post('user/bulk/operation', 'HomeController@applyBulkOperation');

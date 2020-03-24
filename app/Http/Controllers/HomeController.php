@@ -14,7 +14,7 @@ class HomeController extends Controller
 
     public function getRecords()
     {
-        $records = User::where('status', 'Active')->paginate(5)->onEachSide(1);
+        $records = User::paginate(5)->onEachSide(1);
         //return view('home.pagination', compact('records'));
         return response()->json(['data'=> $records, 'pagination'=>(string) $records->links()]);
     }
@@ -29,8 +29,16 @@ class HomeController extends Controller
         $request->get('narrative') === null ? $record->narrative = '---' : $record->narrative = $request->get('narrative');
         $request->get('id') === null ? $record->created_by = session('id') : $record->updated_by = session('id');
         $record->save();
-        //return redirect('get/user/record/null?page=2');
         return response()->json($record);
+    }
+
+    public function applyBulkOperation(Request $request)
+    {
+        $ids = explode(',', $request->get('ids'));
+        foreach ($ids as $id) {
+            User::where('id', $id)->update(['status' => $request->get('status')]);
+        }
+        return response()->json('Applying Bulk Operation Done Successfully');
     }
 
     public function getRecord(Request $request)
