@@ -27,7 +27,7 @@ class UserRequest extends FormRequest
         return [
             'id' => 'nullable|numeric',
             'name'=> 'required|max:255|string',
-            //'email'=> 'required|email|max:255|string|unique:users.email'. $this->id,
+            'email'=> 'required|email|max:255|string|unique:users,email,'. $this->id,
             'mobile_number'=> 'nullable|digits:11',
             'status' => [Rule::in('Active', 'Inactive')],
             'narrative' => 'nullable|max:255'
