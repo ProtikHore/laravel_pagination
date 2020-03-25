@@ -10,13 +10,17 @@
                 <div class="col-3">
                     <button class="btn btn-primary" id="add"> Add</button>
                 </div>
-                <div class="col-6">
+                <div class="col-9">
                     <form id="search_form">
-                        <input type="text" class="form-control" name="search" id="search" placeholder="Search....">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="search" name="search">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary border-left-0 border btn_orange" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
                     </form>
-                </div>
-                <div class="col-3">
-                    <button type="button" class="btn btn-primary">Search</button>
                 </div>
             </div>
             <hr>

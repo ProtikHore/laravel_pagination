@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -29,7 +30,7 @@ class HomeController extends Controller
         return response()->json(['data'=> $records, 'pagination'=>(string) $records->links()]);
     }
 
-    public function saveRecords(Request $request)
+    public function saveRecords(UserRequest $request)
     {
         $record = $request->get('id') === null ? new User() : User::find($request->get('id'));
         $record->name = $request->get('name');
