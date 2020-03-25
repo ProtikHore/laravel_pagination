@@ -22,3 +22,8 @@ Route::post('user/bulk/operation', 'HomeController@applyBulkOperation');
 Route::get('/', 'LoginController@index');
 Route::post('login', 'LoginController@login')->middleware("throttle:4,1");
 Route::get('logout', 'LoginController@logout');
+
+Route::post('import/user/faker', function(){
+    Artisan::call('db:seed');
+    return response()->json('Import Done');
+});

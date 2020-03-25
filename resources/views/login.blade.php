@@ -24,6 +24,7 @@
                 </div>
                 <div class="text-right">
                     <button type="submit" class="btn btn-success btn-sm">Log in</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="import_user">Import User</button>
                 </div>
             </form>
         </div>
@@ -57,6 +58,27 @@
                 }
             });
             return false;
+        });
+
+        $(document).on('click', '#import_user', function () {
+            let data = new FormData();
+            data.append('_token', '{{ csrf_token() }}');
+           $.ajax({
+               method: 'post',
+               url: '{{ url('import/user/faker') }}',
+               data: data,
+               contentType: false,
+               processData: false,
+               cache: false,
+               success: function (result) {
+                   console.log(result);
+                   $.toaster({ title: 'Success', priority : 'success', message : result });
+               },
+               error: function (xhr) {
+                   console.log(xhr);
+               }
+           });
+           return false;
         });
     </script>
 @endsection

@@ -105,31 +105,31 @@
 
 
 <script>
-    // $body = $("body");
-    // $(document).on({
-    //     ajaxStart: function() {
-    //         var zIndex = 999;
-    //         if ($('body').hasClass('modal-open')) {
-    //             zIndex = parseInt($('div.modal').css('z-index')) + 1;
-    //         }
-    //         $(".ajax_loading_modal").css({
-    //             'z-index': zIndex
-    //         });
-    //         $body.addClass("loading");
-    //         $('body.loading .ajax_loading_modal').css({
-    //             'overflow': 'hidden',
-    //             'display': 'block'
-    //         });
-    //     },
-    //     ajaxStop: function() {
-    //         $('body.loading .ajax_loading_modal').css({
-    //             'overflow': 'visible',
-    //             'display': 'none'
-    //         });
-    //         $body.removeClass("loading");
-    //
-    //     }
-    // });
+    $body = $("body");
+    $(document).on({
+        ajaxStart: function() {
+            var zIndex = 999;
+            if ($('body').hasClass('modal-open')) {
+                zIndex = parseInt($('div.modal').css('z-index')) + 1;
+            }
+            $(".ajax_loading_modal").css({
+                'z-index': zIndex
+            });
+            $body.addClass("loading");
+            $('body.loading .ajax_loading_modal').css({
+                'overflow': 'hidden',
+                'display': 'block'
+            });
+        },
+        ajaxStop: function() {
+            $('body.loading .ajax_loading_modal').css({
+                'overflow': 'visible',
+                'display': 'none'
+            });
+            $body.removeClass("loading");
+
+        }
+    });
 </script>
 
 
